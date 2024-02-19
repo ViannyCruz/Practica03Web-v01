@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+  <meta name="description" content="" />
+  <meta name="author" content="" />
+  <title>User Information - Start Bootstrap Template</title>
+  <!-- Favicon-->
+  <link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
+  <!-- Core theme CSS (includes Bootstrap)-->
+  <link href="css/styles.css" rel="stylesheet" />
+  <style>
+    /* Estilos para el contenedor circular de la foto de perfil */
+    .profile-picture-container {
+      width: 200px;
+      height: 200px;
+      border-radius: 50%;
+      overflow: hidden;
+      margin: 0 auto;
+      margin-bottom: 20px;
+    }
+
+    .profile-picture-container img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  </style>
+</head>
+<body>
+<!-- Responsive navbar-->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <div class="container">
+    <a class="navbar-brand" href="index.html">Start Bootstrap</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+        <li class="nav-item"><a class="nav-link active" aria-current="page" href="index.html">Home</a></li>
+        <li class="nav-item"><a class="nav-link" id="miElemento" href="RegistrarUsuario.html">Add User</a></li>
+        <li class="nav-item"><a class="nav-link" id="autor" href="CrearArticulo.html">Add Article</a></li>
+        <li class="nav-item"><a class="nav-link" id="login-link" href="sesion.html">Login</a></li>
+        <li class="nav-item"><a class="nav-link" id="username-link" href="usuario.html">Guest</a></li>
+      </ul>
+    </div>
+  </div>
+</nav>
+<!-- Page content-->
+<div class="container">
+  <!-- Perfil de Usuario -->
+  <div class="text-center mt-5">
+    <!-- Contenedor circular de la foto de perfil -->
+    <div class="profile-picture-container">
+      <img id="profile-picture" src="#" alt="Profile Picture">
+    </div>
+    <!-- Formulario para subir foto de perfil -->
+    <div class="mb-3">
+      <input type="file" id="profile-picture-input" accept="image/*">
+      <button id="upload-picture-btn" class="btn btn-primary">Upload Picture</button>
+    </div>
+  </div>
+
+  <!-- User Details-->
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <div class="card mb-4">
+        <div class="card-header">User Details</div>
+        <div class="card-body">
+          <table class="table">
+            <tbody>
+            <tr>
+              <th scope="row">Username</th>
+              <td id="username-link">JohnDoe</td>
+            </tr>
+            <tr>
+              <th scope="row">Name</th>
+              <td id="nombre-link">John Doe</td>
+            </tr>
+            <tr>
+              <th scope="row">Administrator</th>
+              <td id="admin-link">Yes</td>
+            </tr>
+            <tr>
+              <th scope="row">Author</th>
+              <td id="autor-link">Yes</td>
+            </tr>
+            </tbody>
+          </table>
+          <!-- Botón Log out -->
+          <div class="mt-3">
+            <button id="logout-btn" class="btn btn-danger" onclick="logOut()">Log out</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Bootstrap core JS-->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Core theme JS-->
+<script src="js/scripts.js"></script>
+
+<script>
+  // Función para manejar la carga de la imagen y convertirla a base64
+  const profilePictureInput = document.getElementById('profile-picture-input');
+  const uploadPictureBtn = document.getElementById('upload-picture-btn');
+  const profilePictureContainer = document.getElementById('profile-picture-container');
+  const profilePicture = document.getElementById('profile-picture');
+
+  uploadPictureBtn.addEventListener('click', function() {
+    const file = profilePictureInput.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = function(event) {
+        const base64String = event.target.result;
+        profilePicture.src = base64String; // Mostrar la imagen
+        profilePictureContainer.style.display = 'block';
+
+        // Aquí puedes usar la variable base64String para enviarla al servidor o almacenarla en algún lugar.
+        console.log('Imagen convertida a base64:', base64String);
+      }
+      reader.readAsDataURL(file); // Leer como URL de datos (base64)
+    }
+  });
+</script>
+</body>
+</html>

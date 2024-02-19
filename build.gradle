@@ -12,6 +12,32 @@ repositories {
 dependencies {
     testImplementation platform('org.junit:junit-bom:5.9.1')
     testImplementation 'org.junit.jupiter:junit-jupiter'
+
+    // Driver de la conexión en h2...
+    implementation 'com.h2database:h2:2.2.224'
+    implementation 'org.postgresql:postgresql:42.3.8'
+
+    // Hibernate ORM
+    implementation 'org.hibernate:hibernate-core:5.5.7.Final'
+
+
+    // Implementación de JPA (Java Persistence API)
+    implementation 'javax.persistence:javax.persistence-api:2.2'
+
+
+    implementation 'io.javalin:javalin:6.0.1'
+    implementation 'org.jasypt:jasypt:1.9.3'
+
+
+    implementation("org.slf4j:slf4j-simple:2.0.10")
+
+    implementation 'javax.servlet:javax.servlet-api:4.0.1'
+    implementation 'org.json:json:20210307'
+
+    implementation 'com.google.code.gson:gson:2.8.8'
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.16.1")
+
+
 }
 
 test {

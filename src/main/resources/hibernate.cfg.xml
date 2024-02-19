@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE hibernate-configuration PUBLIC
+        "-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+        "http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>
+    <session-factory>
+        <!-- Configuración de la conexión a la base de datos -->
+        <property name="hibernate.connection.driver_class">org.h2.Driver</property>
+        <property name="hibernate.connection.url">jdbc:h2:tcp://localhost/~/test22</property>
+        <property name="hibernate.connection.username">sa</property>
+        <property name="hibernate.connection.password">sa</property>
+
+        <!-- Configuración de dialecto para H2 -->
+        <property name="hibernate.dialect">org.hibernate.dialect.H2Dialect</property>
+
+        <!-- Mostrar las consultas SQL generadas por Hibernate -->
+        <property name="show_sql">true</property>
+
+        <!-- Configuración de creación de tablas -->
+        <property name="hibernate.hbm2ddl.auto">update</property>
+
+        <!-- Mapeo de tus clases de entidad -->
+        <!-- Mapeo de tus clases de entidad -->
+        <mapping class="org.example.Usuario"/>
+        <mapping class="org.example.Articulo"/>
+        <mapping class="org.example.Etiqueta"/>
+        <mapping class="org.example.ArticuloEtiqueta"/>
+        <!-- <mapping class="org.example.YourEntityClass"/> -->
+    </session-factory>
+</hibernate-configuration>
