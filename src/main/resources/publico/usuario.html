@@ -40,7 +40,7 @@
         <li class="nav-item"><a class="nav-link" id="miElemento" href="RegistrarUsuario.html">Add User</a></li>
         <li class="nav-item"><a class="nav-link" id="autor" href="CrearArticulo.html">Add Article</a></li>
         <li class="nav-item"><a class="nav-link" id="login-link" href="sesion.html">Login</a></li>
-        <li class="nav-item"><a class="nav-link" id="username-link" href="usuario.html">Guest</a></li>
+        <li class="nav-item"><a class="nav-link" id="username-link-nav" href="usuario.html">Guest</a></li>
       </ul>
     </div>
   </div>
@@ -123,5 +123,133 @@
     }
   });
 </script>
+
+<!--Cargar los datos del usuario-->
+<script>
+  fetch('/cargarUsuario')
+          .then(resp => {
+            if (resp.ok) {
+              return resp.json();
+            } else {
+              throw new Error('Error al obtener los datos del post');
+            }
+          })
+          .then(usuario => {
+            console.log('Datos del usuario recibidos:', usuario);
+            var username = usuario.username;
+            var nombre = usuario.nombre;
+            var admin = usuario.administrador;
+            var autor = usuario.autor;
+            if(username != null){
+              document.getElementById('username-link-nav').textContent = username;
+            }
+            localStorage.setItem("username",username);
+            localStorage.setItem("nombre",nombre);
+            localStorage.setItem("admin",admin);
+            localStorage.setItem("autor",autor);
+
+            document.getElementById('username-link').textContent = username;
+            document.getElementById('nombre-link').textContent = nombre;
+            if(admin == true){
+              document.getElementById('admin-link').textContent = "Yes";
+            } else {
+              document.getElementById('admin-link').textContent = "No";
+            }
+            if(autor == true){
+              document.getElementById('autor-link').textContent = "Yes";
+            } else {
+              document.getElementById('autor-link').textContent = "No";
+            }
+          })
+</script>
+
+<!--Deslogear usuario-->
+<script>
+  function logOut(){
+    event.preventDefault();
+
+    var username = localStorage.getItem('username');
+
+    var xhttp = new XMLHttpRequest();
+    xhttp.open("POST", "http://localhost:7000/logout", true);
+    xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+
+    xhttp.onreadystatechange = function() {
+      if (this.readyState == 4 && this.status == 200) {
+
+        localStorage.setItem('username', null);
+        localStorage.setItem('nombre', null);
+        localStorage.setItem('admin', null);
+        localStorage.setItem('autor', null);
+
+        window.location.href = "/index.html";
+      } else {
+        alert("Usuario deslogueado correctamente");
+      }
+    };
+    xhttp.send("username=" + username);
+  }
+</script>
+
+
+
+
+
+
+
+
+<script>
+  const profilePictureInput = document.getElementById('profile-picture-input');
+  const uploadPictureBtn = document.getElementById('upload-picture-btn');
+  const profilePictureContainer = document.getElementById('profile-picture-container');
+  const profilePicture = document.getElementById('profile-picture');
+
+  uploadPictureBtn.addEventListener('click', function() {
+    const file = profilePictureInput.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = function(event) {
+        const base64String = event.target.result;
+        profilePicture.src = base64String;
+        profilePictureContainer.style.display = 'block';
+
+        // Enviar la imagen al servidor
+        sendImageToServer(base64String);
+      }
+      reader.readAsDataURL(file);
+    }
+  });
+
+  // Función para enviar la imagen al servidor
+  function sendImageToServer(base64String) {
+    const username = localStorage.getItem('username');
+    fetch('http://localhost:7000/guardarFoto', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        username: username,
+        profilePicture: base64String
+      })
+    })
+            .then(response => {
+              if (response.ok) {
+                console.log('Imagen enviada al servidor correctamente');
+              } else {
+                throw new Error('Error al enviar la imagen al servidor');
+              }
+            })
+            .catch(error => {
+              console.error('Error:', error);
+            });
+  }
+</script>
+
+
+
+
+
+
 </body>
 </html>

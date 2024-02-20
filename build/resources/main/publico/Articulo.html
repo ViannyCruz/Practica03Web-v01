@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="description" content="Pagina de articulo" />
+    <meta name="author" content="Carlos Mena" />
+    <title>Articulo</title>
+    <!-- Favicon-->
+    <link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
+    <!-- Bootstrap core CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Core theme CSS (includes Bootstrap)-->
+    <link href="css/styles.css" rel="stylesheet" />
+    <style>
+        .container {
+            max-width: 800px;
+        }
+        .navbar-brand {
+            font-size: 1.5rem;
+        }
+        .card {
+            margin-top: 20px;
+        }
+        .fecha-Post {
+            font-size: 0.8rem;
+            color: #6c757d;
+        }
+        .titulo-Post {
+            font-size: 2rem;
+            margin-top: 10px;
+        }
+        .contenido-Post {
+            font-size: 1.1rem;
+            margin-top: 20px;
+        }
+        .autor-Post {
+            font-size: 1rem;
+            color: #6c757d;
+        }
+        .etiqueta-Post {
+            font-size: 1rem;
+            color: #6c757d;
+        }
+        .comentario-input {
+            margin-top: 20px;
+        }
+        .comentar-btn {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="index.html">Home</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                <li class="nav-item"><a class="nav-link active" id="username-nav" href="user.html">Usuario</a></li>
+                <li class="nav-item"><a class="nav-link active" id="login-nav" href="login.html">Login</a></li>
+                <li class="nav-item"><a class="nav-link active" id="registrarUsuario-nav" href="registrarUsuario.html">Registrar Usuario</a></li>
+                <li class="nav-item"><a class="nav-link active" id="crearArticulo-nav" href="crearArticulo.html">Crear Articulo</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <button type="submit" class="btn btn-primary btn-block btn-modificar" id="modificar" onclick="Modificar()">Modificar Articulo</button>
+            <button type="submit" class="btn btn-primary btn-block btn-eliminar" id="eliminar" onclick="Eliminar()">Eliminar Articulo</button>
+            <div class="card mb-4" id="articulo-container">
+                <div class="card-body" id="articulo-body">
+                    <h2 class="card-title text-center">Datos del Articulo</h2>
+                </div>
+            </div>
+            <div class="form-group mt-3">
+                <input type="text" class="form-control comentario-input" id="Comentar-Input" name="Comentarios">
+                <button type="submit" class="btn btn-primary mt-2 comentar-btn" id="Comentar-Btn">Comentar</button>
+            </div>
+
+            <div id="comentarios-container">
+                <!-- Comentarios serán insertados aquí -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    fetch('/obtenerArticulo')
+        .then(resp => resp.json())
+        .then(respuesta => {
+            var contenedor = document.getElementById('articulo-body');
+            var articulo = respuesta.articulo;
+            var autor = respuesta.nombreAutor;
+            localStorage.setItem("autorArticulo", autor);
+            var etiquetas = respuesta.etiquetas;
+            var fechaArticulo = new Date(articulo.fecha);
+            var dia = fechaArticulo.getDate();
+            var mes = fechaArticulo.getMonth() + 1;
+            var ano = fechaArticulo.getFullYear();
+            var titulo = articulo.titulo;
+            var cuerpo = articulo.cuerpo;
+            var comentarios = respuesta.comentarios;
+            var comentariosContainer = document.getElementById('comentarios-container');
+
+            var cantComent = respuesta.cantidadComentarios;
+
+            var articuloVista = `<div class="small text-muted fecha-Post"><strong>Fecha: </strong>${dia}/${mes}/${ano}</div>
+                                    <h2 class="card-title titulo-Post"><strong>Titulo: </strong>${titulo}</h2>
+                                    <p class="card-text contenido-Post"><strong>Cuerpo: </strong>${cuerpo}</p>
+                                    <p class="card-text autor-Post"><strong>Autor: </strong>${autor}</p>
+                                    <p class="card-text etiqueta-Post"><strong>Etiquetas: </strong>${etiquetas}</p></div>`;
+            contenedor.innerHTML = articuloVista;
+
+            function createClickListener() {
+                var comentario = document.getElementById("Comentar-Input").value;
+
+                var xhttp = new XMLHttpRequest();
+                xhttp.open("POST", "http://localhost:7000/crearComentario", true);
+                xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+
+                xhttp.onreadystatechange = function() {
+                    if (this.readyState == 4 && this.status == 200) {
+                        var nuevoComentario = JSON.parse(this.responseText);
+
+                        var nuevoComentarioVista = `<div class="card-body">
+                                        <p class="card-text autor-Post"><strong>Autor: </strong>${nuevoComentario.autorName}</p>
+                                        <p class="card-text contenido-Post"><strong>Contenido: </strong>${nuevoComentario.comentario}</p>
+                                    </div>`;
+
+                        comentariosContainer.innerHTML += nuevoComentarioVista;
+
+                        document.getElementById("Comentar-Input").value = "";
+                    }
+                };
+                xhttp.send("Comentario=" + comentario);
+
+            }
+            var ComentarBtn = document.getElementById('Comentar-Btn');
+            if(ComentarBtn){
+                ComentarBtn.addEventListener('click', createClickListener);
+            }
+            for (var i = 0; i < cantComent; i++) {
+                var comentario = comentarios[i];
+                var comentarioVista = `<div class="card-body">
+                                        <p class="card-text autor-Post"><strong>Autor: </strong>${comentario.autor.username}</p>
+                                        <p class="card-text contenido-Post"><strong>Contenido: </strong>${comentario.comentario}</p>
+                                   </div>`;
+                comentariosContainer.innerHTML += `<div>${comentarioVista}</div>`;
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+</script>
+
+<script>
+    fetch('/obtenerUsuario')
+        .then(resp => {
+            if (resp.ok) {
+                return resp.json();
+            } else {
+                throw new Error('Error al obtener los datos del usuario');
+            }
+        })
+        .then(usuario => {
+            console.log('Datos del usuario recibidos:', usuario);
+
+            if(usuario.username != 'null') {
+                document.getElementById('username-nav').textContent = usuario.username;
+            }
+
+            localStorage.setItem('username-nav', usuario.username);
+            localStorage.setItem('nombre', usuario.nombre);
+            localStorage.setItem('administrador', usuario.administrador);
+            localStorage.setItem('autor', usuario.autor);
+
+            var navItemRegistrarUsuario = document.querySelector('.nav-item-registrar-usuario');
+            var navItemLogin = document.querySelector('.nav-item-login');
+            var navItemUsuario = document.querySelector('.nav-item-usuario');
+            var navItemCrearArticulo = document.querySelector('.nav-item-crear-articulo');
+            var btnModificar = document.querySelector('.btn-modificar');
+            var btnEliminar = document.querySelector('.btn-eliminar');
+            var ComentarBtn = document.getElementById('Comentar-Btn');
+            var ComentarInput = document.getElementById('Comentar-Input');
+
+            if (usuario.administrador === true) {
+                navItemRegistrarUsuario.style.display = 'block';
+            } else {
+                navItemRegistrarUsuario.style.display = 'none';
+            }
+            var autorArticulo = localStorage.getItem("autorArticulo");
+            if(usuario.username == autorArticulo || usuario.administrador == true){
+                btnEliminar.style.display='block';
+                btnModificar.style.display='block';
+            } else {
+                btnEliminar.style.display='none';
+                btnModificar.style.display='none';
+            }
+
+            if(usuario.autor === true || usuario.administrador === true) {
+                navItemCrearArticulo.style.display = 'block';
+                ComentarBtn.style.display = 'block';
+                ComentarInput.style.display = 'block';
+
+            } else {
+                navItemCrearArticulo.style.display = 'none';
+                ComentarBtn.style.display = 'none';
+                ComentarInput.style.display = 'none';
+            }
+
+            if(usuario.username == 'null') {
+                navItemLogin.style.display = 'block';
+                navItemUsuario.style.display = 'none';
+            } else {
+                navItemLogin.style.display = 'none';
+                navItemUsuario.style.display = 'block';
+            }
+
+        })
+        .catch(error => {
+            console.error('Error al recibir los datos del usuario:', error);
+        });
+</script>
+
+<script>
+    function Modificar() {
+        window.location.href = "modificarArticulo.html";
+    }
+</script>
+
+<script>
+    function Eliminar(){
+        event.preventDefault();
+
+        var xhttp = new XMLHttpRequest();
+        xhttp.open("POST", "http://localhost:7000/eliminarArticulo");
+        xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+        xhttp.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200) {
+                window.location.href = "/index.html";
+            }
+        };
+        xhttp.send("Eliminar");
+    }
+
+
+
+
+
+
+
+
+
+
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>

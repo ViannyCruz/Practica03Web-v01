@@ -213,11 +213,11 @@
                 })
                 .then(usuario => {
                     // Verificar si los elementos existen antes de intentar actualizarlos
-                    if (document.getElementById('username')) {
+                    if (document.getElementById('username') && usuario.username != null) {
                         document.getElementById('username').value = usuario.username;
                     }
 
-                    if (document.getElementById('password')) {
+                    if (document.getElementById('password') && usuario.password != null) {
                         document.getElementById('password').value = usuario.password;
                     }
                 })

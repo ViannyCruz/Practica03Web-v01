@@ -137,4 +137,36 @@ public class ServiciosArticuloEtiqueta {
         }
         return articulosEtiquetados;
     }
+
+
+    public void borrarArticuloEtiquetaPorIdArticulo(long idArticulo) {
+        Session session = null;
+        Transaction transaction = null;
+        try {
+            session = sessionFactory.openSession();
+            transaction = session.beginTransaction();
+
+            // Realizar la consulta para obtener los objetos ArticuloEtiqueta por ID de Artículo
+            List<ArticuloEtiqueta> articulosEtiquetas = session.createQuery("FROM ArticuloEtiqueta WHERE idArticulo = :idArticulo")
+                    .setParameter("idArticulo", idArticulo)
+                    .list();
+
+            // Eliminar todos los registros de ArticuloEtiqueta asociados al ID de artículo
+            for (ArticuloEtiqueta articuloEtiqueta : articulosEtiquetas) {
+                session.delete(articuloEtiqueta);
+            }
+
+            transaction.commit();
+        } catch (Exception e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            e.printStackTrace();
+        } finally {
+            if (session != null) {
+                session.close();
+            }
+        }
+    }
+
 }

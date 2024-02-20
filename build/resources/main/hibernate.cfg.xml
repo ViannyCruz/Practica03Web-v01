@@ -6,7 +6,7 @@
     <session-factory>
         <!-- Configuración de la conexión a la base de datos -->
         <property name="hibernate.connection.driver_class">org.h2.Driver</property>
-        <property name="hibernate.connection.url">jdbc:h2:tcp://localhost/~/test22</property>
+        <property name="hibernate.connection.url">jdbc:h2:tcp://localhost/~/test27</property>
         <property name="hibernate.connection.username">sa</property>
         <property name="hibernate.connection.password">sa</property>
 
@@ -25,6 +25,8 @@
         <mapping class="org.example.Articulo"/>
         <mapping class="org.example.Etiqueta"/>
         <mapping class="org.example.ArticuloEtiqueta"/>
+        <mapping class="org.example.Comentario"/>
+        <mapping class="org.example.Foto"/>
         <!-- <mapping class="org.example.YourEntityClass"/> -->
     </session-factory>
 </hibernate-configuration>

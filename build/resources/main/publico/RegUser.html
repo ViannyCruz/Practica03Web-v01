@@ -2,9 +2,215 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crear Usuario</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
+    <style>
+        html {
+            position: relative;
+            min-height: 100%;
+        }
+
+        body {
+            margin: 0;
+            margin-bottom: 60px; /* Altura del footer */
+            padding-bottom: 60px; /* Altura del footer */
+        }
+
+        footer {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 60px; /* Altura del footer */
+            background-color: #f5f5f5;
+        }
+    </style>
 </head>
 <body>
+<!-- Responsive navbar-->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container">
+        <a class="navbar-brand" href="index.html">Start Bootstrap</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                <li class="nav-item"><a class="nav-link active" aria-current="page" href="index.html">Home</a></li>
+                <li class="nav-item"><a class="nav-link" id="miElemento" href="RegistrarUsuario.html">Add User</a></li>
+                <li class="nav-item"><a class="nav-link" id="autor" href="CrearArticulo.html">Add Article</a></li>
+                <li class="nav-item"><a class="nav-link" id="login-link" href="sesion.html">Login</a></li>
+                <li class="nav-item"><a class="nav-link" id="username-link" href="usuario.html">Guest</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    Crear Usuario
+                </div>
+                <div class="card-body">
+                    <form>
+                        <div class="mb-3">
+                            <label for="username" class="form-label">Nombre de Usuario</label>
+                            <input type="text" class="form-control" id="username" name="username">
+                        </div>
+                        <div class="mb-3">
+                            <label for="nombre" class="form-label">Nombre</label>
+                            <input type="text" class="form-control" id="nombre" name="nombre">
+                        </div>
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Contraseña</label>
+                            <input type="password" class="form-control" id="password" name="password">
+                        </div>
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="administrator" name="administrator">
+                            <label class="form-check-label" for="administrator">Administrador</label>
+                        </div>
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="autorbox" name="autor">
+                            <label class="form-check-label" for="autor">Autor</label>
+                        </div>
+                        <button type="submit" class="btn btn-primary" onclick="enviarTexto()">Crear Usuario</button>
+
+                        <script>
+                            function enviarTexto() {
+                                event.preventDefault(); // Detener el envío automático del formulario
+
+                                var username = document.getElementById("username").value;
+                                var nombre = document.getElementById("nombre").value;
+                                var contrasena = document.getElementById("password").value;
+                                var esAdministrador = document.getElementById("administrator").checked;
+                                var esAutor = document.getElementById("autorbox").checked;
+
+                                // Crear un objeto XMLHttpRequest
+                                var xhttp = new XMLHttpRequest();
+
+                                // Configurar la solicitud POST al servidor Java
+                                xhttp.open("POST", "http://localhost:7000/registrar-usuario", true);
+                                xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+
+
+
+                                // Enviar los datos al servidor Java
+                                xhttp.send("username=" + username + "&nombre=" + nombre + "&contrasena=" + contrasena + "&esAdministrador=" + esAdministrador + "&esAutor=" + esAutor);
+                                window.location.href = "index.html";
+
+
+
+
+                                // Hacer una solicitud GET a la ruta /index.html
+                                var xhttp = new XMLHttpRequest();
+                                xhttp.onreadystatechange = function() {
+                                    if (this.readyState == 4 && this.status == 200) {
+                                        // La solicitud se completó con éxito, redirigir al usuario
+                                        window.location.href = "/index.html";
+                                    }
+                                };
+                                //xhttp.open("GET", "/index.html", true); //todo
+                                xhttp.send();
+
+
+                            }
+                        </script>
+
+
+
+
+
+                        <script>
+                            function obtenerDatos() {
+                                fetch('/obtener-datos-usuario')
+                                    .then(response => {
+                                        if (response.ok) {
+                                            return response.json(); // Convertir la respuesta a JSON
+                                        } else {
+                                            throw new Error('Error al obtener los datos del usuario');
+                                        }
+                                    })
+                                    .then(usuario => {
+                                        console.log('Datos del usuario recibidos:', usuario);
+
+                                        // Verificar si los elementos existen antes de intentar actualizarlos
+                                        if (document.getElementById('username-link')) {
+                                            document.getElementById('username-link').textContent = usuario.username;
+                                        }
+
+                                        if (document.getElementById('username-link-2')) {
+                                            document.getElementById('username-link-2').textContent = usuario.username;
+                                        }
+
+                                        if (document.getElementById('nombre-link')) {
+                                            document.getElementById('nombre-link').textContent = usuario.nombre;
+                                        }
+
+                                        if (document.getElementById('admin-link')) {
+                                            document.getElementById('admin-link').textContent = usuario.administrador;
+                                        }
+
+                                        if (document.getElementById('autor-link')) {
+                                            document.getElementById('autor-link').textContent = usuario.autor;
+                                        }
+
+                                        document.getElementById('login-link').style.display = 'none';
+
+                                        if (usuario.autor === false && document.getElementById('autor')) {
+                                            document.getElementById('autor').style.display = 'none';
+                                        }else if(document.getElementById('autor'))
+                                        {
+                                            document.getElementById('autor').style.display = 'block';
+
+                                        }
+
+                                        if (usuario.administrador === false && document.getElementById('miElemento')) {
+                                            document.getElementById('miElemento').style.display = 'none';
+                                        } else if (document.getElementById('miElemento')) {
+                                            document.getElementById('miElemento').style.display = 'block';
+                                            document.getElementById('autor').style.display = 'block';
+
+                                        }
+
+
+                                        if (document.getElementById('login-link')) {
+                                            document.getElementById('login-link').style.display = 'none';
+                                        }
+
+                                    })
+                                    .catch(error => {
+                                        console.error('Error al recibir los datos del usuario:', error);
+                                        document.getElementById('autor').style.display = 'none';
+                                        document.getElementById('miElemento').style.display = 'none';
+                                        document.getElementById('login-link').style.display = 'block';
+
+                                        if (document.getElementById('login-link')) {
+                                            document.getElementById('login-link').style.display = 'block';
+                                        }
+
+                                    });
+                            }
+
+                            document.addEventListener('DOMContentLoaded', function () {
+                                obtenerDatos();
+                            });
+                        </script>
+
+
+
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Footer-->
+<footer class="py-3 bg-dark">
+    <div class="container"><p class="m-0 text-center text-white">Copyright &copy; Your Website 2023</p></div>
+</footer>
 
 </body>
 </html>
+

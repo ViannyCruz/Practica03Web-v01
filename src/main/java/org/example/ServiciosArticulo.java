@@ -13,6 +13,16 @@ public class ServiciosArticulo {
     private static ServiciosArticulo instancia;
     private static final SessionFactory sessionFactory = buildSessionFactory();
 
+
+    private Articulo articuloAct;
+    public void SetArticuloAct(Articulo articulo){
+        articuloAct = articulo;
+    }
+
+    public Articulo GetArticuloAct(){
+        return articuloAct;
+    }
+
     // Constructor privado para evitar instanciación directa
     private ServiciosArticulo() {}
 
@@ -163,5 +173,77 @@ public class ServiciosArticulo {
 
         return articulo;
     }
+
+
+    public void eliminarArticuloPorId(long id) {
+        Session session = null;
+        Transaction transaction = null;
+
+        try {
+            // Abrir una sesión de Hibernate desde la SessionFactory existente
+            session = sessionFactory.openSession();
+            transaction = session.beginTransaction();
+
+            // Obtener el artículo por su ID
+            Articulo articulo = session.get(Articulo.class, id);
+            if (articulo != null) {
+                // Eliminar el artículo si se encuentra
+                session.delete(articulo);
+                System.out.println("Artículo eliminado con éxito.");
+            } else {
+                System.out.println("No se encontró ningún artículo con el ID proporcionado.");
+            }
+
+            // Confirmar la transacción
+            transaction.commit();
+        } catch (Exception e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            e.printStackTrace();
+        } finally {
+            if (session != null) {
+                // Cerrar la sesión de Hibernate
+                session.close();
+            }
+        }
+    }
+
+    public void modificarArticuloPorId(long id, String nuevoTitulo, String nuevoContenido) {
+        Session session = null;
+        Transaction transaction = null;
+
+        try {
+            // Abrir una sesión de Hibernate desde la SessionFactory existente
+            session = sessionFactory.openSession();
+            transaction = session.beginTransaction();
+
+            // Obtener el artículo por su ID
+            Articulo articulo = session.get(Articulo.class, id);
+            if (articulo != null) {
+                // Modificar el artículo si se encuentra
+                articulo.setTitulo(nuevoTitulo);
+                articulo.setCuerpo(nuevoContenido);
+                session.update(articulo);
+                System.out.println("Artículo modificado con éxito.");
+            } else {
+                System.out.println("No se encontró ningún artículo con el ID proporcionado.");
+            }
+
+            // Confirmar la transacción
+            transaction.commit();
+        } catch (Exception e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            e.printStackTrace();
+        } finally {
+            if (session != null) {
+                // Cerrar la sesión de Hibernate
+                session.close();
+            }
+        }
+    }
+
 
 }

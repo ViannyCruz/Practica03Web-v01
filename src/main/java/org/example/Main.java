@@ -1,5 +1,7 @@
 package org.example;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import io.javalin.Javalin;
 import io.javalin.http.Cookie;
 import io.javalin.http.staticfiles.Location;
@@ -83,11 +85,18 @@ public class Main {
         // Manejar la solicitud GET para obtener los datos del usuario
         app.get("/obtenerAdmin", ctx -> {
             System.out.println("Entro a obtener admin");
-            String usuarioJson = convertirAJson(ServiciosUsuario.getInstance().GetUsuario());
-            ServiciosUsuario.getInstance().SetUsuario(null);
 
-            // Enviar los datos del usuario al cliente
-            ctx.json(usuarioJson);
+          //  if(ServiciosUsuario.getInstance().GetUsuarioAct() != null)
+          //  {
+                String usuarioJson = convertirAJson(ServiciosUsuario.getInstance().GetUsuario());
+                ServiciosUsuario.getInstance().SetUsuario(null);
+
+                // Enviar los datos del usuario al cliente
+                ctx.json(usuarioJson);
+           // }
+
+            //ctx.status(200);
+
         });
 
         // RECIBIDOR LOGIN
@@ -121,11 +130,11 @@ public class Main {
                     // COOKIES
                     // Cookie Username
                     String usernameEncripted = textEncryptor.encrypt(user.getUsername());
-                    ctx.cookie("usernameCookie", usernameEncripted, 40);
+                    ctx.cookie("usernameCookie", usernameEncripted, 200);
 
                     // Cookie Password
                     String passwordEncripted = textEncryptor.encrypt(user.getPassword());
-                    ctx.cookie("passwordCookie", passwordEncripted, 40);
+                    ctx.cookie("passwordCookie", passwordEncripted, 200);
                     System.out.println("Remenber me");  //todo REMOVE*/
                 }
                 ctx.status(200);
@@ -149,6 +158,7 @@ public class Main {
             Date fecha = new Date();
             //TODO: INDICARLE AL MALDITO USUSAIRO COMO DEBE PONER LA ETIUQTE 1, 2,
             // PONER UN PUTO ", " AL INAL CUANDO EL ANIMAL, EL USUARIO, MANDE LA VAINA
+            etiqueta = etiqueta + ", ";
             String[] etiquetaSplit = etiqueta.split(", ");
 
             Articulo newArticulo = new Articulo(titulo, contenido, ServiciosUsuario.getInstance().GetUsuarioAct().getId(), fecha);
@@ -272,6 +282,7 @@ public class Main {
 
 
 
+
             /*
             for(Articulo arti: lista){ // Recorrer articulos
                 for(ArticuloEtiqueta eTI: listaArticuloEtiqueta){ // Recorrer ArticulosEtiquetas
@@ -356,6 +367,249 @@ public class Main {
             ctx.json(respuesta);*/
         });
 
+
+
+
+
+
+
+
+
+
+        // Manejar la solicitud POST para cargar el artículo
+        app.post("/cargar-articulo", ctx -> {
+            // Obtener el ID del artículo enviado desde el cliente
+            String body = ctx.body();
+            JsonObject jsonObject = new JsonParser().parse(body).getAsJsonObject();
+            long articleId = jsonObject.get("id").getAsLong();
+            System.out.println("TUTUUTUTUTU: "+ articleId);
+
+
+
+           // Articulo articulo = BlogController.getInstance().getArticuloAct(articleId);
+            Articulo articulo = ServiciosArticulo.getInstance().obtenerArticuloPorId(articleId);
+            ServiciosArticulo.getInstance().SetArticuloAct(articulo);
+          //  BlogController.getInstance().setArticuloAct(articulo);
+
+            ctx.status(200); //solicitud exitosa
+        });
+
+
+
+/*
+        app.get("/obtener-articulo", ctx -> {
+
+            // Convertir el artículo a JSON
+            Gson gson = new Gson();
+            String articuloJson = gson.toJson(ServiciosArticulo.getInstance().GetArticuloAct());
+
+            // Enviar el artículo al cliente
+            ctx.result(articuloJson).contentType("application/json; charset=utf-8");
+            ctx.status(200);
+        });
+*/
+
+
+
+        app.get("/obtenerArticulo", ctx -> {
+
+            Articulo articulo = ServiciosArticulo.getInstance().GetArticuloAct();
+
+            //LISTA DE COMENTARIOS
+            //TODO: OBTENER LA LSITA REAL DE COMENTARIOS
+            // NO ESTA VACIA QUE PUSE PARA PROBAR
+            List<Comentario> todoLosComentarios = ServiciosComentario.getInstance().obtenerTodosLosComentarios();
+
+            List<Comentario> comentarios = new ArrayList<>();
+
+            long idArticulo = ServiciosArticulo.getInstance().GetArticuloAct().getId();
+
+
+            for(Comentario coment : todoLosComentarios){
+                if(coment != null)
+                    if(coment.getIdArticulo() == idArticulo)
+                        comentarios.add(coment);
+            }
+
+
+
+
+            int cantidadComentarios = comentarios.size();
+            List<String> etiquetas = new ArrayList<>();
+
+            String nombreAutor = ServiciosUsuario.getInstance().buscarUsuarioPorId(ServiciosArticulo.getInstance().GetArticuloAct().getAutor()).getNombre();
+
+
+            etiquetas.add(convertirEtiquetasAJson(articulo));
+
+
+
+            Respuesta2 respuesta = new Respuesta2(articulo, comentarios, etiquetas,nombreAutor,cantidadComentarios);
+            ctx.json(respuesta);
+
+        });
+
+
+        app.get("/obtener-articulo-modify", ctx -> {
+
+            // Convertir el artículo a JSON
+            Gson gson = new Gson();
+            String articuloJson = gson.toJson( ServiciosArticulo.getInstance().GetArticuloAct());
+
+            // Enviar el artículo al cliente
+            ctx.result(articuloJson).contentType("application/json; charset=utf-8");
+        });
+
+
+        app.post("/modificarArticulo", ctx -> {
+            System.out.println("Entro a modificar articulo, llamo boton !!!!!!!!!!!!!!!");
+
+
+            String titulo = ctx.formParam("titulo");
+            String cuerpo = ctx.formParam("cuerpo");
+            String etiquetas = ctx.formParam("etiquetas");
+
+            //Borrar todas los articulos etiqueta de este articulo
+            ServiciosArticuloEtiqueta.getInstance().borrarArticuloEtiquetaPorIdArticulo(ServiciosArticulo.getInstance().GetArticuloAct().getId());
+
+
+            // Obtener el ID del artículo actual
+            long articuloId = ServiciosArticulo.getInstance().GetArticuloAct().getId();
+
+            // Modificar el artículo con el nuevo título y cuerpo
+            ServiciosArticulo.getInstance().modificarArticuloPorId(articuloId, titulo, cuerpo);
+
+            // Dividir la cadena de etiquetas en etiquetas individuales
+            String[] etiquetaSplit = etiquetas.split(",");
+
+            // Recorrer cada etiqueta
+            for (String etiqueta : etiquetaSplit) {
+                // Limpiar la etiqueta eliminando espacios al principio y al final
+                etiqueta = etiqueta.trim();
+                System.out.println(etiqueta + "\n");
+                // Verificar si la etiqueta ya existe en la base de datos
+                Etiqueta existente = ServiciosEtiquetas.getInstance().etiquetaExiste(etiqueta);
+                System.out.println(existente);
+                if (existente == null) {
+                    // Si la etiqueta no existe, créala y obtén su ID
+                    Etiqueta nuevaEtiqueta = ServiciosEtiquetas.getInstance().crearEtiqueta(etiqueta);
+                    // Asocia la nueva etiqueta al artículo
+                    ServiciosArticuloEtiqueta.getInstance().almacenarArticuloEtiqueta(new ArticuloEtiqueta(articuloId, nuevaEtiqueta.getId()));
+                } else {
+                    // Si la etiqueta ya existe, obtén su ID y asóciala al artículo
+                    ServiciosArticuloEtiqueta.getInstance().almacenarArticuloEtiqueta(new ArticuloEtiqueta(articuloId, existente.getId()));
+                }
+            }
+
+            ctx.status(200);
+        });
+
+        app.post("/eliminarArticulo", ctx -> {
+            Articulo articulo = ServiciosArticulo.getInstance().GetArticuloAct();
+            ServiciosArticulo.getInstance().eliminarArticuloPorId(articulo.getId());
+            ServiciosArticulo.getInstance().SetArticuloAct(null);
+
+            //Fuera buena practica eliminar los comentarios de ese articulo tambien
+        });
+
+
+
+
+
+
+        app.get("/cargarUsuario", ctx -> {
+            Usuario user = ServiciosUsuario.getInstance().GetUsuarioAct();
+
+            ctx.json(user);
+        });
+
+        app.get("/obtenerUsuario", ctx -> {
+            String usuarioJson = convertirAJson(ServiciosUsuario.getInstance().GetUsuarioAct());
+            ctx.json(ServiciosUsuario.getInstance().GetUsuarioAct());
+            //ctx.json(usuarioJson);
+        });
+
+        app.post("/logout", ctx -> {
+
+            // Eliminar la cookie de nombre "usernameCookie"
+               ctx.removeCookie("usernameCookie");
+            // Eliminar la cookie de nombre "passwordCookie"
+               ctx.removeCookie("passwordCookie");
+
+            String username = ctx.formParam("username");
+            System.out.println("Deslogueando al usuario: " +username);
+            Usuario nadie = new Usuario(null,null,null,false,false);
+            ServiciosUsuario.getInstance().SetUsuarioAct(nadie);
+
+        });
+
+
+        app.post("/crearComentario", ctx -> {
+            String comentarioTexto = ctx.formParam("Comentario");
+            Usuario autor = ServiciosUsuario.getInstance().buscarUsuarioPorId(ServiciosArticulo.getInstance().GetArticuloAct().getAutor());
+            //Long id = Controladora.getInstance().crearComentarioId();
+
+
+
+            //Comentario comentario = new Comentario( comentarioTexto, autor);
+            Comentario comentario = ServiciosComentario.getInstance().crearComentario(comentarioTexto, ServiciosUsuario.getInstance().GetUsuarioAct().getId(), ServiciosUsuario.getInstance().GetUsuarioAct().getNombre(), ServiciosArticulo.getInstance().GetArticuloAct().getId());
+
+
+            //Controladora.getInstance().getArticuloSeleccionado().getListaComentarios().add(comentario);
+
+            ctx.json(comentario);
+        });
+
+
+
+        //REGISTRAR USUARIO
+        app.post("/registrar-usuario", ctx -> {
+            // Obtener los parámetros enviados en la solicitud POST
+            String nombreUsuario = ctx.formParam("username");
+            String nombre = ctx.formParam("nombre");
+            String contrasena = ctx.formParam("contrasena");
+
+            // Manejar los parámetros booleanos
+            boolean esAdministrador = Boolean.parseBoolean(ctx.formParam("esAdministrador"));
+            boolean esAutor = Boolean.parseBoolean(ctx.formParam("esAutor"));
+
+            //NUEVO USUARIO
+            //Crear el nuevo usuario
+            Usuario newUser = new Usuario(nombreUsuario, nombre, contrasena, esAdministrador, esAutor);
+
+            //Agregar el nuevo usuario
+            ServiciosUsuario.getInstance().CrearUsuario(nombreUsuario, nombre, contrasena, esAdministrador, esAutor);
+            //BlogController.getInstance().addUsuario(newUser);
+
+
+        });
+
+
+
+        app.post("/guardarFoto", ctx -> {
+            System.out.println("Entre a guardar fotot !!!!!!!!!!!!!!!!!!!!!!!");
+
+            //String base64Image = ctx.body();
+           // ServiciosFoto.getInstance().guardarFoto(base64Image, ServiciosUsuario.getInstance().GetUsuarioAct().getId());
+           // System.out.println("Imagen recibida correctamente en el servidor.");
+            //ctx.status(200).result("Imagen recibida correctamente en el servidor.");
+        });
+
+        app.get("/obtenerFotoUsuario", ctx -> {
+            // Aquí deberías escribir el código para obtener la foto del usuario
+            // y devolverla al cliente en formato base64 o en el formato adecuado
+            // Supongamos que tienes una función que devuelve la foto del usuario en base64
+
+            String fotoBase64 = ServiciosFoto.getInstance().obtenerFotoUsuarioPorId(ServiciosUsuario.getInstance().GetUsuarioAct().getId()); // Debes implementar esta función
+
+            if (fotoBase64 != null && !fotoBase64.isEmpty()) {
+                ctx.result(fotoBase64); // Devolver la foto como respuesta al cliente
+            } else {
+                ctx.status(404); // Indicar que la foto no fue encontrada (código de error HTTP 404)
+            }
+        });
+
+
     }
 
 
@@ -414,5 +668,47 @@ public class Main {
         return etiquetas.toString();
     }
 
+
+
+
+
+    static class Respuesta2 {
+        private Articulo articulo;
+        private List<Comentario> comentarios;
+
+        private List<String> etiquetas;
+
+        private String nombreAutor;
+
+        private int cantidadComentarios;
+
+        public Respuesta2(Articulo articulo, List<Comentario> comentarios, List<String> etiquetas, String nombreAutor, int cantidadComentarios) {
+            this.articulo = articulo;
+            this.comentarios = comentarios;
+            this.etiquetas = etiquetas;
+            this.nombreAutor = nombreAutor;
+            this.cantidadComentarios = cantidadComentarios;
+        }
+
+        public Articulo getArticulo() {
+            return articulo;
+        }
+
+        public List<Comentario> getComentarios() {
+            return comentarios;
+        }
+
+        public List<String> getEtiquetas(){
+            return  etiquetas;
+        }
+
+        public String getNombreAutor(){
+            return nombreAutor;
+        }
+
+        public int getCantidadComentarios(){
+            return cantidadComentarios;
+        }
+    }
 
 }
